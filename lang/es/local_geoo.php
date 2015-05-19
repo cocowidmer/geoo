@@ -1,9 +1,9 @@
 
 <?php
 /**
- * Strings for component 'local_geo', language 'en'
+ * Strings for component 'local_geoo', language 'en'
 *
-* @package   local_geo
+* @package   local_geoo
 */
 /**
  local/reservasalas.php

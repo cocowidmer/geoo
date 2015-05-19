@@ -17,13 +17,13 @@
  *
 *
 * @package    local
-* @subpackage geo
+* @subpackage geoo
 * @copyright  2015 Cdshqwkjgsd
 * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 */
 //belongs to attendance plugin
 
 defined('MOODLE_INTERNAL') || die();
-$plugin->pluginname = "local_geo";
-$plugin->component = 'local_geo';
-$plugin->version   = '2015051300';//añomesdiacambio
+$plugin->pluginname = "local_geoo";
+$plugin->component = 'local_geoo';
+$plugin->version   = '2015051900';//añomesdiacambio

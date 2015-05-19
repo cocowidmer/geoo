@@ -26,30 +26,30 @@
  * @param int $oldversion
  * @param object $block
  */
-function xmldb_local_geo_upgrade($oldversion) {
+function xmldb_local_geoo_upgrade($oldversion) {
 	global $CFG, $DB;
 	$dbman = $DB->get_manager();
 	
 	if ($oldversion < 2015051201) {
 	
-		// Define table local_geo to be created.
-		$table = new xmldb_table('local_geo');
+		// Define table local_geoo to be created.
+		$table = new xmldb_table('local_geoo');
 	
-		// Adding fields to table local_geo.
+		// Adding fields to table local_geoo.
 		$table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
 		$table->add_field('alumno_id', XMLDB_TYPE_INTEGER, '15', null, null, null, null);
 		$table->add_field('comentario', XMLDB_TYPE_TEXT, null, null, null, null, null);
 	
-		// Adding keys to table local_geo.
+		// Adding keys to table local_geoo.
 		$table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
 	
-		// Conditionally launch create table for local_geo.
+		// Conditionally launch create table for local_geoo.
 		if (!$dbman->table_exists($table)) {
 			$dbman->create_table($table);
 		}
 	
 		// Geo savepoint reached.
-		upgrade_plugin_savepoint(true, 2015051201, 'local', 'geo');
+		upgrade_plugin_savepoint(true, 2015051201, 'local', 'geoo');
 	}
 	
 	return true;
