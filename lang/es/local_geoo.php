@@ -9,4 +9,5 @@
  local/reservasalas.php
 */
 $string['tete'] = 'hola mundo';
+$string['local/geoo:putgrade'] = 'Poner Notas';
 ?>

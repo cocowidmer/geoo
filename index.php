@@ -13,11 +13,11 @@ $PAGE->navbar->add('index');
 echo $OUTPUT->header();
 echo $OUTPUT->heading('heading');
 
+echo 'holi';
+//$grades=grade_get_course_grade('2');
+//var_dump($grades);
 
-echo "hola mundo";
-
-
-$formulario = new comment();
+/*$formulario = new comment();
 if ($formulario->is_cancelled()) {
 	echo 'Usted no ingreso comentarios';
 } else if ($fromform = $formulario->get_data()) {
@@ -30,6 +30,6 @@ if ($formulario->is_cancelled()) {
 
 } else {
 	$formulario->display();
-}
+}*/
 echo $OUTPUT->footer();
 ?>

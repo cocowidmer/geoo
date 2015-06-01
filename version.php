@@ -26,4 +26,4 @@
 defined('MOODLE_INTERNAL') || die();
 $plugin->pluginname = "local_geoo";
 $plugin->component = 'local_geoo';
-$plugin->version   = '2015051900';//añomesdiacambio
+$plugin->version   = '2015060101';//añomesdiacambio
