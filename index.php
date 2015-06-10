@@ -28,11 +28,13 @@ echo $OUTPUT->header();
 
 $context = get_context_instance(CONTEXT_COURSE,$courseid);
 $esProfesor = false;
-if ($roles = get_user_roles($context, $USER->id)) {
-	foreach ($roles as $role) {
+if ($roles = get_user_roles($context, $USER->id)) //if para mostrar informacion solo para el profesor y la otra para los alumnos
+ {foreach ($roles as $role) {
 		if($role->shortname == 'editingteacher'){
 			$esProfesor = true;}}}
 
+			
+			
 
 $ranking = required_param ( 'ranking', PARAM_INT );
 
@@ -67,11 +69,18 @@ foreach ( $items as $item ) {
 	$table->data[] = array($position, $average, $firstname, $lastname);
 }
 
-echo html_writer::table($table);
+	 if (!empty($average)) { //if there are no grades
+	echo html_writer::table($table);
+    }
+    
+    else {
+    
+    	echo "no hay notas todavía";}
 	}
 
 else
-{echo "hola no puedes ver esto!";}
+{echo "hola no puedes ver esto!";
+		}
 
 
 } 
@@ -109,13 +118,22 @@ else if ($ranking == 2) // NOTAS, SHOWS AVERAGE OF THE COURSE OF EVERY STUDENT
 	$firstname = $item->firstname;
 	$lastname = $item->lastname;
 	$finalgrade = $item->finalgrade;
+	
+		 
 	$table->data[] = array($position, $finalgrade, $firstname, $lastname);
 	}
-	
+	 if (!empty($finalgrade)) { //if there are no grades
 	echo html_writer::table($table);
-
+    }
+    
+    else {
+    
+    	echo "no hay notas todavía";}
+	
+ 	
 
 }
+
 
 else
 {echo "hola no puedes ver esto!";}
@@ -165,15 +183,26 @@ else if ($ranking == 3) // ACTIVIDADES, SHOWS THE TOTAL OF FORUMS WRITEN AND FIL
 		$table->data[] = array($firstname, $lastname, $sumaarchivos, $sumaforos, $suma);
 	}
 	
-	echo html_writer::table($table);
 	
+	
+	
+	
+    if (!empty($sumaarchivos && $sumaforos)) { //if there are no grades
+    	
+	echo html_writer::table($table);
+    }
+    
+    else {
+    
+    	echo "no hay notas todavía";
+    	}
 	
 	
 	
 }
 
 else
-{echo "hola no puedes ver esto!";}
+{echo "hola, no puedes ver esto!";}
 
 }
 
