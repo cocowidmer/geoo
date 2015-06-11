@@ -40,10 +40,8 @@ $ranking = required_param ( 'ranking', PARAM_INT );
 
 if ($ranking == 1) // TAREAS, SHOWS AVERAGE OF ASSIGNMENT OF THE COURSE OF EVERY STUDENT
 {
-	
-
-	if($esProfesor){ 	
-$items = $DB->get_records_sql ( "SELECT firstname, lastname, AVG(ag.grade) as average
+		
+$items = $DB->get_records_sql ( "SELECT firstname, lastname, AVG(ag.grade) as average, u.id as ui
 			FROM mdl_assign_grades as ag INNER JOIN
 			mdl_assign as a ON (a.id = ag.assignment)
 			INNER JOIN mdl_user as u ON (ag.userid = u.id)
@@ -63,10 +61,20 @@ $table->head = array (
 $position = 0;
 foreach ( $items as $item ) {
 	$position++;
-	$firstname = $item->firstname;
-	$lastname = $item->lastname;
-	$average = $item->average;
-	$table->data[] = array($position, $average, $firstname, $lastname);
+	if($esProfesor){
+		$ui= $item->ui;
+    	$firstname = $item->firstname;
+		$lastname = $item->lastname;
+		$average = $item->average;
+		$table->data[] = array($position, $average, $firstname, $lastname);
+	}else{
+		if($USER->id == $item->ui){
+			$firstname = $item->firstname;
+			$lastname = $item->lastname;
+			$average = $item->average;
+			$table->data[] = array($position, $average, $firstname, $lastname);
+		}
+	}
 }
 
 	 if (!empty($average)) { //if there are no grades
@@ -76,12 +84,6 @@ foreach ( $items as $item ) {
     else {
     
     	echo "no hay notas todavía";}
-	}
-
-else
-{echo "hola no puedes ver esto!";
-		}
-
 
 } 
 
@@ -91,9 +93,8 @@ else
 
 else if ($ranking == 2) // NOTAS, SHOWS AVERAGE OF THE COURSE OF EVERY STUDENT
 {
-	if($esProfesor){
-      $items = $DB->get_records_sql ("SELECT
-			firstname, lastname, finalgrade
+$items = $DB->get_records_sql ("SELECT
+			firstname, lastname, finalgrade, u.id as ui
 			FROM
 			mdl_grade_grades as gg INNER JOIN
 			(mdl_grade_items as gi JOIN mdl_course as c JOIN mdl_user as u)
@@ -111,42 +112,45 @@ else if ($ranking == 2) // NOTAS, SHOWS AVERAGE OF THE COURSE OF EVERY STUDENT
 		'Firstname',
 		'Lastname'
 	);
-	
 	$position = 0;
 	foreach ( $items as $item ) {
-	$position++;
-	$firstname = $item->firstname;
-	$lastname = $item->lastname;
-	$finalgrade = $item->finalgrade;
-	
-		 
-	$table->data[] = array($position, $finalgrade, $firstname, $lastname);
+		$position++;
+		if($esProfesor){
+			$ui= $item->ui;
+			$firstname = $item->firstname;
+			$lastname = $item->lastname;
+			$finalgrade = $item->finalgrade;
+			$table->data[] = array($position, $finalgrade, $firstname, $lastname);
+		}else{
+			if($USER->id == $item->ui){
+				$firstname = $item->firstname;
+				$lastname = $item->lastname;
+				$finalgrade = $item->finalgrade;
+				$table->data[] = array($position, $finalgrade, $firstname, $lastname);
+			}
+		}
 	}
-	 if (!empty($finalgrade)) { //if there are no grades
-	echo html_writer::table($table);
-    }
-    
-    else {
-    
-    	echo "no hay notas todavía";}
 	
- 	
+	if (!empty($finalgrade)) { //if there are no grades
+		echo html_writer::table($table);
+	}
+	
+	else {
+	
+		echo "no hay notas todavía";}
+	
+	}
+	
+	
 
-}
-
-
-else
-{echo "hola no puedes ver esto!";}
-
-}
 	
 
 else if ($ranking == 3) // ACTIVIDADES, SHOWS THE TOTAL OF FORUMS WRITEN AND FILES DOWNLOADED OF EVERY STUDENT OF THE COURSE
 {
-	if($esProfesor){
+	
 	$items = $DB->get_records_sql ("SELECT firstname, lastname, COUNT(lsl.objectid) as sumaarchivos,
 		IFNULL (T.sumaforos,0) as sumaforos, 
-		(COUNT(lsl.objectid) + IFNULL (T.sumaforos,0)) as suma
+		(COUNT(lsl.objectid) + IFNULL (T.sumaforos,0)) as suma, u.id as ui
 		FROM mdl_logstore_standard_log as lsl 
 		INNER JOIN mdl_user as u ON (lsl.userid = u.id) 
 		INNER JOIN (mdl_modules as m JOIN mdl_course_modules as cm JOIN mdl_resource as r) 
@@ -164,23 +168,36 @@ else if ($ranking == 3) // ACTIVIDADES, SHOWS THE TOTAL OF FORUMS WRITEN AND FIL
 	
 	$table = new html_table ();
 	$table->head = array (
-			'Firstname',
-			'Lastname',
+			'Position',
+			'Total',
 			'Downloaded Files',
 			'Forums Done',
-			'Total'
+			'Firstname',
+			'Lastname'
 			
 	);
 	
-	
+		$position = 0;
 	foreach ( $items as $item ) {
+		$position++;
+		if($esProfesor){
+		$ui= $item->ui;
 		$firstname = $item->firstname;
 		$lastname = $item->lastname;
 		$sumaarchivos= $item->sumaarchivos;
 		$sumaforos= $item->sumaforos;
 		$suma= $item->suma;
-	
-		$table->data[] = array($firstname, $lastname, $sumaarchivos, $sumaforos, $suma);
+	    $table->data[] = array($position, $suma, $sumaarchivos, $sumaforos, $firstname, $lastname);
+		} else{
+			if($USER->id == $item->ui){
+			$firstname = $item->firstname;
+			$lastname = $item->lastname;
+			$sumaarchivos= $item->sumaarchivos;
+			$sumaforos= $item->sumaforos;
+			$suma= $item->suma;
+	   		$table->data[] = array($position, $suma, $sumaarchivos, $sumaforos, $firstname, $lastname);
+			}
+		}
 	}
 	
 	
@@ -196,15 +213,9 @@ else if ($ranking == 3) // ACTIVIDADES, SHOWS THE TOTAL OF FORUMS WRITEN AND FIL
     
     	echo "no hay notas todavía";
     	}
+	}
 	
 	
-	
-}
-
-else
-{echo "hola, no puedes ver esto!";}
-
-}
 
 
 echo $OUTPUT->footer();
