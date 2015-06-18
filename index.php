@@ -1,5 +1,6 @@
 <?php
 require_once(dirname(__FILE__) . '/../../config.php');
+
 global $PAGE, $CFG, $OUTPUT, $DB;
 
 require_login();
@@ -28,20 +29,22 @@ echo $OUTPUT->header();
 
 $context = get_context_instance(CONTEXT_COURSE,$courseid);
 $esProfesor = false;
-if ($roles = get_user_roles($context, $USER->id)) //if para mostrar informacion solo para el profesor y la otra para los alumnos
+if ($roles = get_user_roles($context, $USER->id)) //created an if, to separate information between teacher and student USEFUL INFO(teacher->can see all grades, student->only see his/her grade(s))
  {foreach ($roles as $role) {
 		if($role->shortname == 'editingteacher'){
 			$esProfesor = true;}}}
+			
+$buttonback = new moodle_url('../../course/view.php', array('id'=>$courseid)); //to get back to the course
 
 			
 			
 
 $ranking = required_param ( 'ranking', PARAM_INT );
 
-if ($ranking == 1) // TAREAS, SHOWS AVERAGE OF ASSIGNMENT OF THE COURSE OF EVERY STUDENT
+if ($ranking == 1) // ASSIGNMENT->TAREAS, SHOWS AVERAGE OF ASSIGNMENT OF THE COURSE OF EVERY STUDENT
 {
 		
-$items = $DB->get_records_sql ( "SELECT firstname, lastname, AVG(ag.grade) as average, u.id as ui
+$items = $DB->get_records_sql ( "SELECT firstname, lastname, ROUND(AVG(ag.grade),1) as average, u.id as ui
 			FROM mdl_assign_grades as ag INNER JOIN
 			mdl_assign as a ON (a.id = ag.assignment)
 			INNER JOIN mdl_user as u ON (ag.userid = u.id)
@@ -53,7 +56,7 @@ $items = $DB->get_records_sql ( "SELECT firstname, lastname, AVG(ag.grade) as av
 $table = new html_table ();
 $table->head = array (
 		'Position',
-		'Average',
+		'Average of Course',
 		'Firstname',
 		'Lastname'
 );
@@ -79,11 +82,15 @@ foreach ( $items as $item ) {
 
 	 if (!empty($average)) { //if there are no grades
 	echo html_writer::table($table);
+	echo $OUTPUT->single_button($buttonback, 'Return');
+
     }
     
     else {
     
-    	echo "no hay notas todavía";}
+    	echo "There are no grades yet";
+    	echo $OUTPUT->single_button($buttonback, 'Return');
+    		}
 
 } 
 
@@ -91,10 +98,10 @@ foreach ( $items as $item ) {
 
 
 
-else if ($ranking == 2) // NOTAS, SHOWS AVERAGE OF THE COURSE OF EVERY STUDENT
+else if ($ranking == 2) // GRADES OF THE COURSE->NOTAS DEL CURSO, SHOWS AVERAGE OF THE COURSE OF EVERY STUDENT
 {
 $items = $DB->get_records_sql ("SELECT
-			firstname, lastname, finalgrade, u.id as ui
+			firstname, lastname, ROUND(finalgrade,1) as finalgrade, u.id as ui
 			FROM
 			mdl_grade_grades as gg INNER JOIN
 			(mdl_grade_items as gi JOIN mdl_course as c JOIN mdl_user as u)
@@ -133,11 +140,13 @@ $items = $DB->get_records_sql ("SELECT
 	
 	if (!empty($finalgrade)) { //if there are no grades
 		echo html_writer::table($table);
+		echo $OUTPUT->single_button($buttonback, 'Return');
 	}
 	
 	else {
 	
-		echo "no hay notas todavía";}
+		echo "There are no grades yet";
+		echo $OUTPUT->single_button($buttonback, 'Return');}
 	
 	}
 	
@@ -145,12 +154,12 @@ $items = $DB->get_records_sql ("SELECT
 
 	
 
-else if ($ranking == 3) // ACTIVIDADES, SHOWS THE TOTAL OF FORUMS WRITEN AND FILES DOWNLOADED OF EVERY STUDENT OF THE COURSE
+else if ($ranking == 3) // ACTIVITIES -> ACTIVIDADES, SHOWS THE TOTAL OF FORUMS WRITEN AND FILES DOWNLOADED OF EVERY STUDENT OF THE COURSE
 {
 	
-	$items = $DB->get_records_sql ("SELECT firstname, lastname, COUNT(lsl.objectid) as sumaarchivos,
+	$items = $DB->get_records_sql ("SELECT firstname, lastname, ROUND(COUNT(lsl.objectid)/5,0) as sumaarchivos,
 		IFNULL (T.sumaforos,0) as sumaforos, 
-		(COUNT(lsl.objectid) + IFNULL (T.sumaforos,0)) as suma, u.id as ui
+		(ROUND(COUNT(lsl.objectid)/5,0) + IFNULL (T.sumaforos,0)) as suma, u.id as ui
 		FROM mdl_logstore_standard_log as lsl 
 		INNER JOIN mdl_user as u ON (lsl.userid = u.id) 
 		INNER JOIN (mdl_modules as m JOIN mdl_course_modules as cm JOIN mdl_resource as r) 
@@ -207,11 +216,13 @@ else if ($ranking == 3) // ACTIVIDADES, SHOWS THE TOTAL OF FORUMS WRITEN AND FIL
     if (!empty($sumaarchivos && $sumaforos)) { //if there are no grades
     	
 	echo html_writer::table($table);
+	echo $OUTPUT->single_button($buttonback, 'Return');
     }
     
     else {
     
-    	echo "no hay notas todavía";
+    	echo "There are no grades yet";
+    	echo $OUTPUT->single_button($buttonback, 'Return');
     	}
 	}
 	
