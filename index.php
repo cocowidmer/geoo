@@ -44,10 +44,11 @@ $ranking = required_param ( 'ranking', PARAM_INT );
 if ($ranking == 1) // ASSIGNMENT->TAREAS, SHOWS AVERAGE OF ASSIGNMENT OF THE COURSE OF EVERY STUDENT
 {
 		
-$items = $DB->get_records_sql ( "SELECT firstname, lastname, ROUND(AVG(ag.grade),1) as average, u.id as ui
+$items = $DB->get_records_sql ( "SELECT firstname, lastname, ROUND(AVG(ag.grade),1) as average, u.id as ui, fullname
 			FROM mdl_assign_grades as ag INNER JOIN
 			mdl_assign as a ON (a.id = ag.assignment)
 			INNER JOIN mdl_user as u ON (ag.userid = u.id)
+            INNER JOIN mdl_course as c ON (a.course= c.id)
 			WHERE a.course = $courseid
 			GROUP BY firstname, lastname
 			ORDER BY average  DESC" );
@@ -69,18 +70,21 @@ foreach ( $items as $item ) {
     	$firstname = $item->firstname;
 		$lastname = $item->lastname;
 		$average = $item->average;
+		$fullname= $item->fullname;
 		$table->data[] = array($position, $average, $firstname, $lastname);
 	}else{
 		if($USER->id == $item->ui){
 			$firstname = $item->firstname;
 			$lastname = $item->lastname;
 			$average = $item->average;
+			$fullname= $item->fullname;
 			$table->data[] = array($position, $average, $firstname, $lastname);
 		}
 	}
 }
 
 	 if (!empty($average)) { //if there are no grades
+	echo "Estas viendo el promedio de tareas del curso-> $fullname";
 	echo html_writer::table($table);
 	echo $OUTPUT->single_button($buttonback, 'Return');
 
@@ -101,11 +105,11 @@ foreach ( $items as $item ) {
 else if ($ranking == 2) // GRADES OF THE COURSE->NOTAS DEL CURSO, SHOWS AVERAGE OF THE COURSE OF EVERY STUDENT
 {
 $items = $DB->get_records_sql ("SELECT
-			firstname, lastname, ROUND(finalgrade,1) as finalgrade, u.id as ui
+			firstname, lastname, ROUND(finalgrade,1) as finalgrade, u.id as ui, fullname
 			FROM
 			mdl_grade_grades as gg INNER JOIN
 			(mdl_grade_items as gi JOIN mdl_course as c JOIN mdl_user as u)
-			ON (gg.itemid = gi.id AND gi.courseid= $courseid AND gg.userid = u.id)
+			ON (gg.itemid = gi.id AND gi.courseid= $courseid AND gg.userid = u.id AND gi.courseid = c.id)
 			GROUP BY firstname, lastname
 			ORDER BY finalgrade DESC");
 	
@@ -127,18 +131,21 @@ $items = $DB->get_records_sql ("SELECT
 			$firstname = $item->firstname;
 			$lastname = $item->lastname;
 			$finalgrade = $item->finalgrade;
+			$fullname= $item->fullname;
 			$table->data[] = array($position, $finalgrade, $firstname, $lastname);
 		}else{
 			if($USER->id == $item->ui){
 				$firstname = $item->firstname;
 				$lastname = $item->lastname;
 				$finalgrade = $item->finalgrade;
+				$fullname= $item->fullname;
 				$table->data[] = array($position, $finalgrade, $firstname, $lastname);
 			}
 		}
 	}
 	
 	if (!empty($finalgrade)) { //if there are no grades
+		echo "Estas viendo el promedio de notas del curso-> $fullname";
 		echo html_writer::table($table);
 		echo $OUTPUT->single_button($buttonback, 'Return');
 	}
@@ -159,11 +166,11 @@ else if ($ranking == 3) // ACTIVITIES -> ACTIVIDADES, SHOWS THE TOTAL OF FORUMS 
 	
 	$items = $DB->get_records_sql ("SELECT firstname, lastname, ROUND(COUNT(lsl.objectid)/5,0) as sumaarchivos,
 		IFNULL (T.sumaforos,0) as sumaforos, 
-		(ROUND(COUNT(lsl.objectid)/5,0) + IFNULL (T.sumaforos,0)) as suma, u.id as ui
+		(ROUND(COUNT(lsl.objectid)/5,0) + IFNULL (T.sumaforos,0)) as suma, u.id as ui, fullname
 		FROM mdl_logstore_standard_log as lsl 
 		INNER JOIN mdl_user as u ON (lsl.userid = u.id) 
-		INNER JOIN (mdl_modules as m JOIN mdl_course_modules as cm JOIN mdl_resource as r) 
-		ON (cm.module = m.id AND r.course = cm.course AND r.id=lsl.objectid) 
+		INNER JOIN (mdl_modules as m JOIN mdl_course_modules as cm JOIN mdl_resource as r JOIN mdl_course as c) 
+		ON (cm.module = m.id AND r.course = cm.course AND r.id=lsl.objectid AND r.course=c.id) 
 		LEFT JOIN
 		(SELECT COUNT(fd.id) as sumaforos, u2.id 
 			FROM mdl_forum_discussions as fd 
@@ -196,6 +203,7 @@ else if ($ranking == 3) // ACTIVITIES -> ACTIVIDADES, SHOWS THE TOTAL OF FORUMS 
 		$sumaarchivos= $item->sumaarchivos;
 		$sumaforos= $item->sumaforos;
 		$suma= $item->suma;
+		$fullname= $item->fullname;
 	    $table->data[] = array($position, $suma, $sumaarchivos, $sumaforos, $firstname, $lastname);
 		} else{
 			if($USER->id == $item->ui){
@@ -204,6 +212,7 @@ else if ($ranking == 3) // ACTIVITIES -> ACTIVIDADES, SHOWS THE TOTAL OF FORUMS 
 			$sumaarchivos= $item->sumaarchivos;
 			$sumaforos= $item->sumaforos;
 			$suma= $item->suma;
+			$fullname= $item->fullname;
 	   		$table->data[] = array($position, $suma, $sumaarchivos, $sumaforos, $firstname, $lastname);
 			}
 		}
@@ -214,13 +223,12 @@ else if ($ranking == 3) // ACTIVITIES -> ACTIVIDADES, SHOWS THE TOTAL OF FORUMS 
 	
 	
     if (!empty($sumaarchivos && $sumaforos)) { //if there are no grades
-    	
+    echo "Estas viendo el total de foros escritos y archivos descargados del curso-> $fullname";
 	echo html_writer::table($table);
 	echo $OUTPUT->single_button($buttonback, 'Return');
     }
     
     else {
-    
     	echo "There are no grades yet";
     	echo $OUTPUT->single_button($buttonback, 'Return');
     	}
